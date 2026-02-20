@@ -5,17 +5,26 @@ const {
     getAllQuizzes,
     getQuizById,
     updateQuiz,
-    deleteQuiz
+    deleteQuiz,
+    addQuestionToQuiz,
+    updateQuestion,
+    deleteQuestion
 } = require('../controllers/quizController');
 const { protect } = require('../utils/authMiddleware');
+const { quizValidation, questionValidation } = require('../utils/validators');
 
-// Public routes (can be accessed with or without auth)
+// Public routes
 router.get('/', getAllQuizzes);
 router.get('/:id', getQuizById);
 
-// Protected routes (require authentication)
-router.post('/', protect, createQuiz);
-router.put('/:id', protect, updateQuiz);
+// Protected Quiz routes
+router.post('/', protect, quizValidation, createQuiz);
+router.put('/:id', protect, quizValidation, updateQuiz);
 router.delete('/:id', protect, deleteQuiz);
+
+// Protected Question routes
+router.post('/:id/questions', protect, questionValidation, addQuestionToQuiz);
+router.put('/questions/:questionId', protect, questionValidation, updateQuestion);
+router.delete('/questions/:questionId', protect, deleteQuestion);
 
 module.exports = router;

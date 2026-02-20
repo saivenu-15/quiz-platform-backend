@@ -189,10 +189,105 @@ const deleteQuiz = async (req, res, next) => {
     }
 };
 
+// @desc    Add question to quiz
+// @route   POST /api/quizzes/:id/questions
+// @access  Private (Creator only)
+const addQuestionToQuiz = async (req, res, next) => {
+    try {
+        const quiz = await Quiz.findById(req.params.id);
+
+        if (!quiz) {
+            return next(new ErrorResponse('Quiz not found', 404));
+        }
+
+        // Check if user is creator
+        if (quiz.creator.toString() !== req.user._id.toString()) {
+            return next(new ErrorResponse('Not authorized to add questions to this quiz', 403));
+        }
+
+        // Get the current question count for order
+        const questionCount = await Question.countDocuments({ quiz: quiz._id });
+
+        const question = await Question.create({
+            ...req.body,
+            quiz: quiz._id,
+            order: questionCount + 1
+        });
+
+        res.status(201).json({
+            success: true,
+            data: question
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Update a question
+// @route   PUT /api/quizzes/questions/:questionId
+// @access  Private (Creator only)
+const updateQuestion = async (req, res, next) => {
+    try {
+        let question = await Question.findById(req.params.questionId).populate('quiz');
+
+        if (!question) {
+            return next(new ErrorResponse('Question not found', 404));
+        }
+
+        // Check if user is creator of the quiz
+        if (question.quiz.creator.toString() !== req.user._id.toString()) {
+            return next(new ErrorResponse('Not authorized to update this question', 403));
+        }
+
+        question = await Question.findByIdAndUpdate(req.params.questionId, req.body, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({
+            success: true,
+            data: question
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Delete a question
+// @route   DELETE /api/quizzes/questions/:questionId
+// @access  Private (Creator only)
+const deleteQuestion = async (req, res, next) => {
+    try {
+        const question = await Question.findById(req.params.questionId).populate('quiz');
+
+        if (!question) {
+            return next(new ErrorResponse('Question not found', 404));
+        }
+
+        // Check if user is creator of the quiz
+        if (question.quiz.creator.toString() !== req.user._id.toString()) {
+            return next(new ErrorResponse('Not authorized to delete this question', 403));
+        }
+
+        await question.deleteOne();
+
+        res.status(200).json({
+            success: true,
+            message: 'Question deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createQuiz,
     getAllQuizzes,
     getQuizById,
     updateQuiz,
-    deleteQuiz
+    deleteQuiz,
+    addQuestionToQuiz,
+    updateQuestion,
+    deleteQuestion
 };
+

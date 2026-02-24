@@ -14,6 +14,9 @@ const socketManager = (server) => {
     io.on('connection', (socket) => {
         console.log(`📡 New client connected: ${socket.id}`);
 
+        // Broadcast online user count to everyone
+        io.emit('onlineCount', io.engine.clientsCount);
+
         // Join a quiz room
         socket.on('joinQuiz', ({ quizId, username }) => {
             socket.join(quizId);
@@ -34,6 +37,7 @@ const socketManager = (server) => {
         // Handle disconnection
         socket.on('disconnect', () => {
             console.log(`🔌 Client disconnected: ${socket.id}`);
+            io.emit('onlineCount', io.engine.clientsCount);
         });
     });
 

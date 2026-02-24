@@ -38,12 +38,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await api.post('/api/auth/logout');
+        try { await api.post('/api/auth/logout'); } catch (e) { }
         setUser(null);
     };
 
+    const mockLogin = () => {
+        const demoUser = { name: 'Demo User', email: 'demo@example.com' };
+        setUser(demoUser);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, register, login, logout, mockLogin }}>
             {children}
         </AuthContext.Provider>
     );

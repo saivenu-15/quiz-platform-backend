@@ -10,8 +10,17 @@ const Login = () => {
     const [showPass, setShowPass] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, mockLogin } = useAuth();
     const navigate = useNavigate();
+
+    const handleDemoLogin = () => {
+        setLoading(true);
+        setTimeout(() => {
+            mockLogin();
+            navigate('/dashboard');
+            setLoading(false);
+        }, 800);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -103,6 +112,27 @@ const Login = () => {
                             ) : (
                                 <>
                                     Sign In
+                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </button>
+
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                            <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#1e293b] px-2 text-slate-500">Or for testing</span></div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleDemoLogin}
+                            disabled={loading}
+                            className="btn-secondary w-full flex items-center justify-center gap-3 group"
+                        >
+                            {loading ? (
+                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            ) : (
+                                <>
+                                    Demo Mode
                                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}

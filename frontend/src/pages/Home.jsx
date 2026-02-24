@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Play, Trophy, Users, Zap, Search, ArrowRight } from 'lucide-react';
+import { Play, Trophy, Users, Zap, Search, ArrowRight, BookOpen, Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
     return (
-        <div className="min-h-screen relative overflow-hidden">
+        <div className="min-h-screen relative overflow-hidden bg-[#0f172a]">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full -z-10">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse-slow"></div>
@@ -13,22 +14,24 @@ const Home = () => {
 
             {/* Navigation */}
             <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-                <div className="flex items-center gap-2">
+                <Link to="/" className="flex items-center gap-2">
                     <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shadow-lg">
                         <Zap className="text-white fill-white" size={24} />
                     </div>
                     <span className="text-2xl font-display font-bold text-white tracking-tight">Quiz<span className="text-blue-500">Pulse</span></span>
-                </div>
+                </Link>
 
                 <div className="hidden md:flex items-center gap-8 text-slate-400 font-medium">
-                    <a href="#" className="hover:text-blue-400 transition-colors">Explore</a>
-                    <a href="#" className="hover:text-blue-400 transition-colors">How it Works</a>
-                    <a href="#" className="hover:text-blue-400 transition-colors">Leaderboards</a>
+                    <Link to="/quizzes" className="hover:text-blue-400 transition-colors">Explore</Link>
+                    <Link to="/quizzes" className="hover:text-blue-400 transition-colors">How it Works</Link>
+                    <Link to="/leaderboard" className="hover:text-blue-400 transition-colors">Leaderboards</Link>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="text-slate-300 font-semibold hover:text-white transition-colors">Sign In</button>
-                    <button className="bg-white/10 backdrop-blur-md border border-white/10 text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-white/20 transition-all active:scale-95">Get Started</button>
+                    <Link to="/login" className="text-slate-300 font-semibold hover:text-white transition-colors">Sign In</Link>
+                    <Link to="/register" className="bg-white/10 backdrop-blur-md border border-white/10 text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-white/20 transition-all active:scale-95">
+                        Get Started
+                    </Link>
                 </div>
             </nav>
 
@@ -57,25 +60,27 @@ const Home = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-5">
-                            <button className="btn-primary flex items-center justify-center gap-3 group">
+                            <Link to="/quizzes/create" className="btn-primary flex items-center justify-center gap-3 group">
                                 Create a Quiz
                                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </button>
-                            <div className="relative group">
+                            </Link>
+                            <Link to="/quizzes" className="relative group">
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                                <button className="relative w-full glass-card h-full px-8 py-3 flex items-center justify-center gap-3 text-white font-semibold">
+                                <div className="relative w-full glass-card h-full px-8 py-3 flex items-center justify-center gap-3 text-white font-semibold">
                                     <Play size={20} className="fill-white" />
                                     Join Game
-                                </button>
-                            </div>
+                                </div>
+                            </Link>
                         </div>
 
                         <div className="mt-12 flex items-center gap-8">
                             <div className="flex -space-x-3">
                                 {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-dark bg-slate-800"></div>
+                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0f172a] bg-slate-800 flex items-center justify-center text-xs text-white">
+                                        {String.fromCharCode(64 + i)}
+                                    </div>
                                 ))}
-                                <div className="w-10 h-10 rounded-full border-2 border-dark bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
+                                <div className="w-10 h-10 rounded-full border-2 border-[#0f172a] bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
                                     +2k
                                 </div>
                             </div>
@@ -108,22 +113,20 @@ const Home = () => {
                                     { title: "React Performance optimization", icon: "⚡", players: 128, color: "emerald" },
                                     { title: "World History: 20th Century", icon: "🌍", players: 856, color: "amber" }
                                 ].map((quiz, i) => (
-                                    <div key={i} className="group p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                                                {quiz.icon}
-                                            </div>
-                                            <div className="flex-1">
-                                                <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">{quiz.title}</h4>
-                                                <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
-                                                    <span className="flex items-center gap-1.5"><Users size={14} /> {quiz.players}</span>
-                                                    <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-                                                    <span className="flex items-center gap-1.5 text-blue-400 font-medium tracking-wide text-[10px] uppercase">Join Now</span>
-                                                </div>
-                                            </div>
-                                            <Play className="text-slate-600 group-hover:text-blue-400" size={20} />
+                                    <Link to="/quizzes" key={i} className="group p-4 flex items-center gap-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer">
+                                        <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                            {quiz.icon}
                                         </div>
-                                    </div>
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-white group-hover:text-blue-400 transition-colors">{quiz.title}</h4>
+                                            <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
+                                                <span className="flex items-center gap-1.5"><Users size={14} /> {quiz.players}</span>
+                                                <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                                                <span className="flex items-center gap-1.5 text-blue-400 font-medium tracking-wide text-[10px] uppercase">Join Now</span>
+                                            </div>
+                                        </div>
+                                        <Play className="text-slate-600 group-hover:text-blue-400" size={20} />
+                                    </Link>
                                 ))}
                             </div>
 
@@ -147,24 +150,67 @@ const Home = () => {
                 </div>
             </main>
 
-            {/* Trust Badges / Quick Stats */}
-            <section className="border-t border-white/5 bg-dark/50 backdrop-blur-md">
-                <div className="max-w-7xl mx-auto px-8 py-12">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        {[
-                            { label: "Quizzes Created", val: "50k+" },
-                            { label: "Active Players", val: "1.2M" },
-                            { label: "Success Rate", val: "99.9%" },
-                            { label: "AI Questions", val: "200k" }
-                        ].map((stat, i) => (
-                            <div key={i} className="text-center group">
-                                <div className="text-3xl font-display font-bold text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight mb-1">{stat.val}</div>
-                                <div className="text-xs text-slate-500 font-semibold uppercase tracking-widest">{stat.label}</div>
+            {/* How it Works / Features Section */}
+            <section id="how-it-works" className="max-w-7xl mx-auto px-8 py-32 border-t border-white/5">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-display font-bold text-white mb-4">How It <span className="text-blue-500">Works</span></h2>
+                    <p className="text-slate-400 max-w-2xl mx-auto text-lg">Experience a seamless flow from discovery to mastery in just three simple steps.</p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    {[
+                        { title: "Choose a Challenge", desc: "Browse thousands of community-created quizzes across any topic you can imagine.", icon: BookOpen, color: "blue" },
+                        { title: "Real-Time Play", desc: "Compete against players worldwide with live score updates and instant feedback.", icon: Zap, color: "emerald" },
+                        { title: "Rise the Ranks", desc: "Earn points, unlock badges, and see your name on the global leaderboards.", icon: Trophy, color: "amber" }
+                    ].map((step, i) => (
+                        <div key={i} className="glass-card p-8 flex flex-col items-center text-center group hover:bg-white/[0.07] transition-all">
+                            <div className={`w-16 h-16 rounded-2xl bg-${step.color}-500/10 flex items-center justify-center text-${step.color}-400 mb-6 group-hover:scale-110 transition-transform`}>
+                                <step.icon size={32} />
                             </div>
-                        ))}
-                    </div>
+                            <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                            <p className="text-slate-400 leading-relaxed">{step.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
+
+            {/* CTA Section */}
+            <section className="max-w-5xl mx-auto px-8 py-20">
+                <div className="glass-card p-12 text-center relative overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-blue-500/20">
+                    <div className="relative z-10">
+                        <h2 className="text-4xl font-display font-bold text-white mb-6">Ready to Start Your Journey?</h2>
+                        <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">Join a community of learners and creators who are pushing the boundaries of interactive education.</p>
+                        <Link to="/register" className="btn-primary inline-flex items-center gap-3">
+                            Get Started for Free
+                            <ArrowRight size={20} />
+                        </Link>
+                    </div>
+                    {/* Decorative Background for CTA */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -ml-32 -mb-32"></div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="border-t border-white/5 py-12 bg-dark/20">
+                <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-2">
+                        <Zap className="text-blue-500" size={24} />
+                        <span className="text-xl font-display font-bold text-white">QuizPulse</span>
+                    </div>
+
+                    <div className="flex gap-8 text-sm font-semibold text-slate-500 uppercase tracking-widest">
+                        <Link to="/quizzes" className="hover:text-white transition-colors">Explore</Link>
+                        <Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>
+                        <a href="#" className="hover:text-white transition-colors">Twitter</a>
+                        <a href="#" className="hover:text-white transition-colors">Discord</a>
+                    </div>
+
+                    <p className="text-sm text-slate-600">
+                        &copy; 2024 QuizPulse. All rights reserved.
+                    </p>
+                </div>
+            </footer>
         </div>
     );
 };

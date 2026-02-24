@@ -1,0 +1,328 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Save, Plus, Trash2, ChevronRight, ChevronLeft, Layout, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import AppLayout from '../components/AppLayout';
+import api from '../context/AuthContext';
+
+const CreateQuiz = () => {
+    const navigate = useNavigate();
+    const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [quizData, setQuizData] = useState({
+        title: '',
+        description: '',
+        category: 'Technology',
+        difficulty: 'medium',
+        timeLimit: 10,
+        isPublic: true,
+        questions: []
+    });
+
+    const [currentQuestion, setCurrentQuestion] = useState({
+        questionText: '',
+        type: 'multiple-choice',
+        options: ['', '', '', ''],
+        correctAnswer: '',
+        points: 5
+    });
+
+    const handleQuizChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setQuizData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const addQuestion = () => {
+        if (!currentQuestion.questionText || !currentQuestion.correctAnswer) {
+            alert('Please fill question text and correct answer');
+            return;
+        }
+        setQuizData(prev => ({
+            ...prev,
+            questions: [...prev.questions, currentQuestion]
+        }));
+        setCurrentQuestion({
+            questionText: '',
+            type: 'multiple-choice',
+            options: ['', '', '', ''],
+            correctAnswer: '',
+            points: 5
+        });
+    };
+
+    const removeQuestion = (index) => {
+        setQuizData(prev => ({
+            ...prev,
+            questions: prev.questions.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleSubmit = async () => {
+        if (quizData.questions.length === 0) {
+            alert('Add at least one question');
+            return;
+        }
+        setLoading(true);
+        try {
+            // For testing purposes, if it's "demo mode" login (no real token), we simulate success
+            const token = localStorage.getItem('token');
+            if (!token || token === 'demo_token') {
+                console.log('Demo Mode: Simulating quiz creation success', quizData);
+                setTimeout(() => {
+                    setLoading(false);
+                    alert('Success! (Demo Mode: Quiz simulated as saved)');
+                    navigate('/dashboard');
+                }, 1000);
+                return;
+            }
+
+            await api.post('/api/quizzes', quizData);
+            navigate('/dashboard');
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to create quiz. Try demo mode or check your backend connection.');
+        } finally {
+            if (localStorage.getItem('token') !== 'demo_token') {
+                setLoading(false);
+            }
+        }
+    };
+
+    return (
+        <AppLayout>
+            <div className="max-w-4xl mx-auto p-8">
+                <div className="mb-10">
+                    <h1 className="text-3xl font-display font-bold text-white">Create New Quiz</h1>
+                    <div className="flex items-center gap-4 mt-4">
+                        <div className={`flex items-center gap-2 text-sm font-semibold ${step === 1 ? 'text-blue-400' : 'text-slate-500'}`}>
+                            <span className={`w-6 h-6 rounded-full border flex items-center justify-center ${step === 1 ? 'border-blue-400' : 'border-slate-700'}`}>1</span>
+                            Details
+                        </div>
+                        <div className="w-10 h-px bg-slate-800"></div>
+                        <div className={`flex items-center gap-2 text-sm font-semibold ${step === 2 ? 'text-blue-400' : 'text-slate-500'}`}>
+                            <span className={`w-6 h-6 rounded-full border flex items-center justify-center ${step === 2 ? 'border-blue-400' : 'border-slate-700'}`}>2</span>
+                            Questions
+                        </div>
+                    </div>
+                </div>
+
+                <AnimatePresence mode="wait">
+                    {step === 1 ? (
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            className="glass-card p-8 space-y-6"
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Quiz Title</label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={quizData.title}
+                                        onChange={handleQuizChange}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
+                                        placeholder="Enter an catchy title..."
+                                    />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Description</label>
+                                    <textarea
+                                        name="description"
+                                        value={quizData.description}
+                                        onChange={handleQuizChange}
+                                        rows="3"
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none resize-none"
+                                        placeholder="Tell participants what this quiz is about..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Category</label>
+                                    <select
+                                        name="category"
+                                        value={quizData.category}
+                                        onChange={handleQuizChange}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none appearance-none"
+                                    >
+                                        <option value="Technology" className="bg-slate-800">Technology</option>
+                                        <option value="Science" className="bg-slate-800">Science</option>
+                                        <option value="History" className="bg-slate-800">History</option>
+                                        <option value="General" className="bg-slate-800">General</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Difficulty</label>
+                                    <select
+                                        name="difficulty"
+                                        value={quizData.difficulty}
+                                        onChange={handleQuizChange}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none appearance-none"
+                                    >
+                                        <option value="easy" className="bg-slate-800">Easy</option>
+                                        <option value="medium" className="bg-slate-800">Medium</option>
+                                        <option value="hard" className="bg-slate-800">Hard</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Time Limit (mins)</label>
+                                    <input
+                                        type="number"
+                                        name="timeLimit"
+                                        value={quizData.timeLimit}
+                                        onChange={handleQuizChange}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
+                                    />
+                                </div>
+                                <div className="flex items-center pt-8">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="isPublic"
+                                            checked={quizData.isPublic}
+                                            onChange={handleQuizChange}
+                                            className="w-5 h-5 rounded border-white/10 bg-white/5 text-blue-500"
+                                        />
+                                        <span className="text-sm font-semibold text-slate-300">Public Quiz</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-4">
+                                <button
+                                    onClick={() => setStep(2)}
+                                    className="btn-primary flex items-center gap-2"
+                                    disabled={!quizData.title}
+                                >
+                                    Next: Add Questions
+                                    <ChevronRight size={18} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-6"
+                        >
+                            {/* Question Form */}
+                            <div className="glass-card p-8 border-l-4 border-l-blue-500">
+                                <div className="mb-6">
+                                    <label className="block text-sm font-semibold text-slate-300 mb-2">Question Text</label>
+                                    <input
+                                        type="text"
+                                        value={currentQuestion.questionText}
+                                        onChange={(e) => setCurrentQuestion({ ...currentQuestion, questionText: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none"
+                                        placeholder="What is the capital of France?"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    {currentQuestion.options.map((option, idx) => (
+                                        <div key={idx} className="relative">
+                                            <input
+                                                type="text"
+                                                value={option}
+                                                onChange={(e) => {
+                                                    const newOptions = [...currentQuestion.options];
+                                                    newOptions[idx] = e.target.value;
+                                                    setCurrentQuestion({ ...currentQuestion, options: newOptions });
+                                                }}
+                                                className={`w-full bg-white/5 border text-white rounded-xl px-4 py-3 outline-none transition-all ${currentQuestion.correctAnswer === option && option !== ''
+                                                    ? 'border-emerald-500/50 bg-emerald-500/5'
+                                                    : 'border-white/10 focus:border-blue-500'
+                                                    }`}
+                                                placeholder={`Option ${idx + 1}`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: option })}
+                                                className={`absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border flex items-center justify-center transition-all ${currentQuestion.correctAnswer === option && option !== ''
+                                                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                                                    : 'border-slate-700 text-slate-700 hover:border-slate-500'
+                                                    }`}
+                                            >
+                                                ✓
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                    <div className="text-xs text-slate-500">
+                                        Tip: Click the checkmark to mark an option as the correct answer.
+                                    </div>
+                                    <button
+                                        onClick={addQuestion}
+                                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 text-white font-semibold hover:bg-white/10 transition-all border border-white/10"
+                                    >
+                                        <Plus size={18} />
+                                        Add to Quiz
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Added Questions List */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Layout size={20} className="text-blue-400" />
+                                    Quiz Content ({quizData.questions.length})
+                                </h3>
+                                {quizData.questions.length > 0 ? (
+                                    quizData.questions.map((q, i) => (
+                                        <div key={i} className="glass-card p-4 flex items-center justify-between group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 font-bold text-sm">
+                                                    {i + 1}
+                                                </div>
+                                                <div>
+                                                    <p className="text-white font-semibold text-sm">{q.questionText}</p>
+                                                    <p className="text-emerald-400 font-bold text-[10px] uppercase tracking-widest mt-0.5">Correct: {q.correctAnswer}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => removeQuestion(i)}
+                                                className="p-2 text-slate-600 hover:text-red-400 transition-colors"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="glass-card p-10 text-center text-slate-500 text-sm border-dashed">
+                                        No questions added yet.
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-between pt-10">
+                                <button
+                                    onClick={() => setStep(1)}
+                                    className="flex items-center gap-2 text-slate-400 font-bold hover:text-white transition-all px-4"
+                                >
+                                    <ChevronLeft size={18} />
+                                    Back to Details
+                                </button>
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={loading || quizData.questions.length === 0}
+                                    className="btn-primary flex items-center gap-2"
+                                >
+                                    {loading ? 'Creating...' : 'Finalize & Save Quiz'}
+                                    <Save size={18} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </AppLayout>
+    );
+};
+
+export default CreateQuiz;

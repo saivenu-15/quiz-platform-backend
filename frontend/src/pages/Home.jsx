@@ -51,11 +51,11 @@ const Home = () => {
                             Next-Gen Learning Experience
                         </div>
 
-                        <h1 className="text-6xl md:text-7xl font-display font-extrabold text-white leading-[1.1] mb-8">
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-extrabold text-white leading-[1.1] mb-6 md:mb-8">
                             Elevate Your <span className="text-gradient">Knowledge</span> in Real-Time
                         </h1>
 
-                        <p className="text-xl text-slate-400 leading-relaxed mb-10 max-w-lg">
+                        <p className="text-lg md:text-xl text-slate-400 leading-relaxed mb-8 md:mb-10 max-w-lg">
                             The only platform that combines competitive gaming mechanics with deep learning. Join thousands of creators and learners worldwide.
                         </p>
 
@@ -157,30 +157,30 @@ const Home = () => {
                     <p className="text-slate-400 max-w-2xl mx-auto text-lg">Experience a seamless flow from discovery to mastery in just three simple steps.</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {[
                         { title: "Choose a Challenge", desc: "Browse thousands of community-created quizzes across any topic you can imagine.", icon: BookOpen, color: "blue" },
                         { title: "Real-Time Play", desc: "Compete against players worldwide with live score updates and instant feedback.", icon: Zap, color: "emerald" },
                         { title: "Rise the Ranks", desc: "Earn points, unlock badges, and see your name on the global leaderboards.", icon: Trophy, color: "amber" }
                     ].map((step, i) => (
-                        <div key={i} className="glass-card p-8 flex flex-col items-center text-center group hover:bg-white/[0.07] transition-all">
-                            <div className={`w-16 h-16 rounded-2xl bg-${step.color}-500/10 flex items-center justify-center text-${step.color}-400 mb-6 group-hover:scale-110 transition-transform`}>
-                                <step.icon size={32} />
+                        <div key={i} className={`glass-card p-6 md:p-8 flex flex-col items-center text-center group hover:bg-white/[0.07] transition-all ${i === 2 ? 'sm:col-span-2 lg:col-span-1' : ''}`}>
+                            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-${step.color}-500/10 flex items-center justify-center text-${step.color}-400 mb-5 md:mb-6 group-hover:scale-110 transition-transform`}>
+                                <step.icon size={28} className="md:w-8 md:h-8" />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                            <p className="text-slate-400 leading-relaxed">{step.desc}</p>
+                            <h3 className="text-lg md:text-xl font-bold text-white mb-2 md:mb-3">{step.title}</h3>
+                            <p className="text-sm md:text-base text-slate-400 leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* CTA Section */}
-            <section className="max-w-5xl mx-auto px-8 py-20">
-                <div className="glass-card p-12 text-center relative overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-blue-500/20">
+            <section className="max-w-5xl mx-auto px-6 md:px-8 py-16 md:py-20">
+                <div className="glass-card p-8 md:p-12 text-center relative overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-blue-500/20">
                     <div className="relative z-10">
-                        <h2 className="text-4xl font-display font-bold text-white mb-6">Ready to Start Your Journey?</h2>
-                        <p className="text-slate-400 text-lg mb-10 max-w-xl mx-auto">Join a community of learners and creators who are pushing the boundaries of interactive education.</p>
-                        <Link to="/register" className="btn-primary inline-flex items-center gap-3">
+                        <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4 md:mb-6">Ready to Start Your Journey?</h2>
+                        <p className="text-base md:text-lg text-slate-400 mb-8 md:mb-10 max-w-xl mx-auto">Join a community of learners and creators who are pushing the boundaries of interactive education.</p>
+                        <Link to="/register" className="btn-primary inline-flex items-center gap-3 w-full sm:w-auto">
                             Get Started for Free
                             <ArrowRight size={20} />
                         </Link>
@@ -192,14 +192,17 @@ const Home = () => {
             </section>
 
             {/* Footer */}
-            <footer className="border-t border-white/5 py-12 bg-dark/20">
-                <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-2">
-                        <Zap className="text-blue-500" size={24} />
-                        <span className="text-xl font-display font-bold text-white">QuizPulse</span>
+            <footer className="border-t border-white/5 py-12 bg-dark/20 text-center md:text-left">
+                <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-10">
+                    <div className="flex flex-col items-center md:items-start gap-4">
+                        <div className="flex items-center gap-2">
+                            <Zap className="text-blue-500" size={24} />
+                            <span className="text-xl font-display font-bold text-white">QuizPulse</span>
+                        </div>
+                        <p className="text-sm text-slate-500 max-w-xs">Empowering creators and learners with next-gen interactive challenges.</p>
                     </div>
 
-                    <div className="flex gap-8 text-sm font-semibold text-slate-500 uppercase tracking-widest">
+                    <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-xs font-semibold text-slate-500 uppercase tracking-widest">
                         <Link to="/quizzes" className="hover:text-white transition-colors">Explore</Link>
                         <Link to="/leaderboard" className="hover:text-white transition-colors">Leaderboard</Link>
                         <a href="#" className="hover:text-white transition-colors">Twitter</a>
@@ -207,7 +210,7 @@ const Home = () => {
                     </div>
 
                     <p className="text-sm text-slate-600">
-                        &copy; 2024 QuizPulse. All rights reserved.
+                        &copy; 2024 QuizPulse.
                     </p>
                 </div>
             </footer>

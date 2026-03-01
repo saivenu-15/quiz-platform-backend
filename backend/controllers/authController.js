@@ -8,6 +8,7 @@ const { ErrorResponse } = require('../utils/errorHandler');
 const register = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
+        console.log(`👤 Registration attempt: ${email}`);
 
         // Check if user already exists
         const userExists = await User.findOne({ email });
@@ -24,6 +25,7 @@ const register = async (req, res, next) => {
 
         // Generate token and send response
         const token = generateToken(res, user._id);
+        console.log(`✅ User registered successfully: ${user.email}`);
 
         res.status(201).json({
             success: true,

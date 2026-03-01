@@ -20,7 +20,7 @@ const QuizPlay = () => {
     const [timeLeft, setTimeLeft] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
     const [notifications, setNotifications] = useState([]);
-    const [liveLeaderboard, setLiveLeaderboard] = useState([]);  
+    const [liveLeaderboard, setLiveLeaderboard] = useState([]);
     const timerRef = useRef(null);
 
     // Socket room joining and notifications
@@ -122,9 +122,24 @@ const QuizPlay = () => {
         setIsCorrect(null);
     };
 
-    const finishQuiz = () => {
+    const finishQuiz = async () => {
         setIsFinished(true);
         clearInterval(timerRef.current);
+
+        // PERSIST RESULTS TO DB (Bug Fix: Bridges realtime to persistence)
+        if (id !== 'demo') {
+            try {
+                await api.post(`/api/quizzes/${id}/submit`, {
+                    score: score,
+                    totalQuestions: quiz.questions.length,
+                    // Optional: track individual answers if needed
+                    answers: []
+                });
+                console.log('✅ Results persisted to database');
+            } catch (err) {
+                console.error('❌ Failed to persist results', err);
+            }
+        }
     };
 
     const formatTime = (seconds) => {
@@ -213,9 +228,15 @@ const QuizPlay = () => {
                         <ArrowLeft size={18} />
                         Quit Quiz
                     </button>
-                    <div className="flex items-center gap-3 glass-card px-4 py-2 text-white font-mono">
-                        <Clock size={18} className={timeLeft < 30 ? "text-red-400 animate-pulse" : "text-blue-400"} />
-                        <span className={timeLeft < 30 ? "text-red-400" : ""}>{formatTime(timeLeft)}</span>
+                    <div className="flex items-center gap-3">
+                        <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-xs uppercase tracking-widest">
+                            <Zap size={14} />
+                            Code: {quiz?.joinCode}
+                        </div>
+                        <div className="flex items-center gap-3 glass-card px-4 py-2 text-white font-mono">
+                            <Clock size={18} className={timeLeft < 30 ? "text-red-400 animate-pulse" : "text-blue-400"} />
+                            <span className={timeLeft < 30 ? "text-red-400" : ""}>{formatTime(timeLeft)}</span>
+                        </div>
                     </div>
                 </div>
 

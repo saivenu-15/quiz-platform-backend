@@ -1,21 +1,10 @@
-# Dependencies
 node_modules/
-
-# Environment variables
-.env
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
+backend/node_modules/
+frontend/node_modules/
+backend/.env
+frontend/.env
+.ds_store
+dist/
+build/
 .vscode/
-.idea/
-
-# Test coverage
-coverage/
+reproduce_crash.js

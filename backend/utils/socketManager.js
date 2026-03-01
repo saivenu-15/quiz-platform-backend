@@ -3,7 +3,7 @@ const socketio = require('socket.io');
 const socketManager = (server) => {
     const io = socketio(server, {
         cors: {
-            origin: process.env.CLIENT_URL || "http://localhost:3000",
+            origin: process.env.CLIENT_URL || "http://localhost:5173",
             methods: ["GET", "POST"],
             credentials: true
         }

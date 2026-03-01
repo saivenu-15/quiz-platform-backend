@@ -1,9 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Play, Trophy, Users, Zap, Search, ArrowRight, BookOpen, Layers } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../context/AuthContext';
 
 const Home = () => {
+    const navigate = useNavigate();
+    const [joinCode, setJoinCode] = React.useState('');
+    const [loadingCode, setLoadingCode] = React.useState(false);
+    const [error, setError] = React.useState('');
+
+    const handleJoinByCode = async () => {
+        if (joinCode.length !== 6) return;
+        setLoadingCode(true);
+        setError('');
+        try {
+            const { data } = await api.get(`/api/quizzes/code/${joinCode}`);
+            navigate(`/quiz/${data.data._id}`);
+        } catch (err) {
+            setError(err.response?.data?.error || 'Invalid code');
+        } finally {
+            setLoadingCode(false);
+        }
+    };
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-[#0f172a]">
             {/* Background Decorative Elements */}
@@ -64,13 +84,29 @@ const Home = () => {
                                 Create a Quiz
                                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
-                            <Link to="/quizzes" className="relative group">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                                <div className="relative w-full glass-card h-full px-8 py-3 flex items-center justify-center gap-3 text-white font-semibold">
-                                    <Play size={20} className="fill-white" />
-                                    Join Game
+
+                            {/* Join with Code Input */}
+                            <div className="relative group flex-1 max-w-sm">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Zap size={18} className="text-blue-500" />
                                 </div>
-                            </Link>
+                                <input
+                                    type="text"
+                                    placeholder="Enter 6-digit code..."
+                                    maxLength={6}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-11 pr-32 text-white font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    onChange={(e) => setJoinCode(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleJoinByCode()}
+                                />
+                                <button
+                                    onClick={handleJoinByCode}
+                                    disabled={loadingCode || joinCode.length !== 6}
+                                    className="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2"
+                                >
+                                    {loadingCode ? '...' : 'Join'}
+                                </button>
+                                {error && <p className="absolute -bottom-6 left-0 text-xs text-red-500">{error}</p>}
+                            </div>
                         </div>
 
                         <div className="mt-12 flex items-center gap-8">

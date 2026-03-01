@@ -38,6 +38,10 @@ const quizValidation = [
     body('title').notEmpty().withMessage('Title is required').trim().isLength({ max: 100 }),
     body('description').optional().isLength({ max: 500 }),
     body('timeLimit').optional().isInt({ min: 1 }).withMessage('Time limit must be a positive integer'),
+    body('questions').isArray({ min: 1 }).withMessage('At least one question is required'),
+    body('questions.*.questionText').notEmpty().withMessage('Each question must have text'),
+    body('questions.*.correctAnswer').notEmpty().withMessage('Each question must have a correct answer'),
+    body('questions.*.options').isArray({ min: 2 }).withMessage('Each question must have at least 2 options'),
     validate,
 ];
 

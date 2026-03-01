@@ -22,9 +22,16 @@ const Register = () => {
             await register(name, email, password);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.errors?.[0]
-                ? Object.values(err.response.data.errors[0])[0]
-                : err.response?.data?.error || 'Registration failed. Please try again.');
+            if (!err.response) {
+                setError('Network Error: Cannot reach server.');
+            } else {
+                let errorMsg = err.response?.data?.error || 'Registration failed. Please try again.';
+                if (err.response?.data?.errors?.[0]) {
+                    const firstErr = err.response.data.errors[0];
+                    errorMsg = typeof firstErr === 'object' ? Object.values(firstErr)[0] : firstErr;
+                }
+                setError(errorMsg);
+            }
         } finally {
             setLoading(false);
         }

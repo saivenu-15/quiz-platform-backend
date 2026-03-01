@@ -10,7 +10,7 @@ const generateToken = (res, userId) => {
     res.cookie('token', token, {
         httpOnly: true, // Prevents XSS attacks
         secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: 'strict', // Prevents CSRF attacks
+        sameSite: 'lax', // Relaxed for local dev across ports
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
 

@@ -8,6 +8,7 @@ const { ErrorResponse } = require('../utils/errorHandler');
 const createQuiz = async (req, res, next) => {
     try {
         const { title, description, timeLimit, isPublic, category, difficulty, questions } = req.body;
+        console.log(`📝 Creating quiz: "${title}" by user ${req.user._id}`);
 
         // Create quiz
         const quiz = await Quiz.create({
@@ -19,6 +20,7 @@ const createQuiz = async (req, res, next) => {
             difficulty,
             creator: req.user._id
         });
+        console.log(`✅ Quiz created: ${quiz._id}`);
 
         // Create questions if provided
         if (questions && questions.length > 0) {
@@ -31,14 +33,19 @@ const createQuiz = async (req, res, next) => {
             await Question.insertMany(questionsWithQuizId);
         }
 
-        // Populate questions before returning
+        // Populate creator and virtual questions before returning
         const populatedQuiz = await Quiz.findById(quiz._id)
+            .populate('creator', 'name email');
+
+        // Note: 'questions' is a virtual field. In Mongoose 8/7, it might need explicit population if not handled.
+        // We'll manually attach them or ensure the virtual works by fetching again after insertMany.
+        const finalQuiz = await Quiz.findById(quiz._id)
             .populate('creator', 'name email')
             .populate('questions');
 
         res.status(201).json({
             success: true,
-            data: populatedQuiz
+            data: finalQuiz
         });
     } catch (error) {
         next(error);
@@ -100,6 +107,25 @@ const getAllQuizzes = async (req, res, next) => {
     }
 };
 
+// @desc    Get logged in user's quizzes
+// @route   GET /api/quizzes/user/me
+// @access  Private
+const getUserQuizzes = async (req, res, next) => {
+    try {
+        const quizzes = await Quiz.find({ creator: req.user._id })
+            .populate('questions')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: quizzes.length,
+            data: quizzes
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // @desc    Get single quiz by ID
 // @route   GET /api/quizzes/:id
 // @access  Public
@@ -115,6 +141,33 @@ const getQuizById = async (req, res, next) => {
 
         // Check if user has access (public or creator)
         if (!quiz.isPublic && (!req.user || quiz.creator._id.toString() !== req.user._id.toString())) {
+            return next(new ErrorResponse('Not authorized to view this quiz', 403));
+        }
+
+        res.status(200).json({
+            success: true,
+            data: quiz
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Get quiz by Join Code
+// @route   GET /api/quizzes/code/:code
+// @access  Public
+const getQuizByCode = async (req, res, next) => {
+    try {
+        const quiz = await Quiz.findOne({ joinCode: req.params.code })
+            .populate('creator', 'name email')
+            .populate('questions');
+
+        if (!quiz) {
+            return next(new ErrorResponse('Quiz not found with this code', 404));
+        }
+
+        // Check if user has access (public or creator)
+        if (!quiz.isPublic && (!req.user || (quiz.creator && quiz.creator._id.toString() !== req.user._id.toString()))) {
             return next(new ErrorResponse('Not authorized to view this quiz', 403));
         }
 
@@ -280,14 +333,119 @@ const deleteQuestion = async (req, res, next) => {
     }
 };
 
+// @desc    Submit quiz results
+// @route   POST /api/quizzes/:id/submit
+// @access  Private
+const submitQuiz = async (req, res, next) => {
+    try {
+        const { score, totalQuestions, answers } = req.body;
+        const quizId = req.params.id;
+
+        const quiz = await Quiz.findById(quizId);
+        if (!quiz) {
+            return next(new ErrorResponse('Quiz not found', 404));
+        }
+
+        const Participant = require('../models/Participant');
+
+        const participant = await Participant.create({
+            quiz: quizId,
+            user: req.user._id,
+            score: score,
+            totalPoints: totalQuestions, // In this simple version, 1 point per question
+            percentage: Math.round((score / totalQuestions) * 100),
+            status: 'completed',
+            completedAt: Date.now(),
+            answers: answers || []
+        });
+
+        res.status(201).json({
+            success: true,
+            data: participant
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Get leaderboard for a quiz
+// @route   GET /api/quizzes/:id/leaderboard
+// @access  Public
+const getLeaderboard = async (req, res, next) => {
+    try {
+        const Participant = require('../models/Participant');
+        const leaderboard = await Participant.find({ quiz: req.params.id })
+            .populate('user', 'name')
+            .sort({ score: -1, completedAt: 1 })
+            .limit(10);
+
+        res.status(200).json({
+            success: true,
+            data: leaderboard
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Get global leaderboard
+// @route   GET /api/quizzes/leaderboard/global
+// @access  Public
+const getGlobalLeaderboard = async (req, res, next) => {
+    try {
+        const Participant = require('../models/Participant');
+        // Simple global leaderboard: sum of all scores per user
+        const globalLeaderboard = await Participant.aggregate([
+            { $match: { status: 'completed' } },
+            {
+                $group: {
+                    _id: '$user',
+                    totalScore: { $sum: '$score' },
+                    quizzesPlayed: { $sum: 1 }
+                }
+            },
+            { $sort: { totalScore: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'userInfo'
+                }
+            },
+            { $unwind: '$userInfo' },
+            {
+                $project: {
+                    _id: 1,
+                    totalScore: 1,
+                    quizzesPlayed: 1,
+                    name: '$userInfo.name'
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: globalLeaderboard
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createQuiz,
     getAllQuizzes,
+    getUserQuizzes,
     getQuizById,
     updateQuiz,
     deleteQuiz,
     addQuestionToQuiz,
     updateQuestion,
-    deleteQuestion
+    deleteQuestion,
+    submitQuiz,
+    getLeaderboard,
+    getGlobalLeaderboard,
+    getQuizByCode
 };
-

@@ -77,10 +77,10 @@ const QuizList = () => {
                             onChange={(e) => setCategory(e.target.value)}
                         >
                             <option value="" className="bg-slate-800">All Categories</option>
-                            <option value="Technology" className="bg-slate-800">Technology</option>
-                            <option value="Science" className="bg-slate-800">Science</option>
-                            <option value="History" className="bg-slate-800">History</option>
-                            <option value="General" className="bg-slate-800">General</option>
+                            <option value="technology" className="bg-slate-800">Technology</option>
+                            <option value="science" className="bg-slate-800">Science</option>
+                            <option value="history" className="bg-slate-800">History</option>
+                            <option value="general" className="bg-slate-800">General</option>
                         </select>
                     </div>
                 </div>

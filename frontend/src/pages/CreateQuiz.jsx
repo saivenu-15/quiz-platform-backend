@@ -12,7 +12,7 @@ const CreateQuiz = () => {
     const [quizData, setQuizData] = useState({
         title: '',
         description: '',
-        category: 'Technology',
+        category: 'technology',
         difficulty: 'medium',
         timeLimit: 10,
         isPublic: true,
@@ -37,8 +37,17 @@ const CreateQuiz = () => {
 
     const addQuestion = () => {
         if (!currentQuestion.questionText || !currentQuestion.correctAnswer) {
-            alert('Please fill question text and correct answer');
+            alert('Please fill question text and select a correct answer');
             return;
+        }
+
+        // Ensure all 4 options are filled for multiple-choice
+        if (currentQuestion.type === 'multiple-choice') {
+            const emptyOptions = currentQuestion.options.some(opt => !opt.trim());
+            if (emptyOptions) {
+                alert('Please fill all 4 options for multiple-choice questions');
+                return;
+            }
         }
         setQuizData(prev => ({
             ...prev,
@@ -67,22 +76,20 @@ const CreateQuiz = () => {
         }
         setLoading(true);
         try {
-            // For testing purposes, if it's "demo mode" login (no real token), we simulate success
-            const token = localStorage.getItem('token');
-            if (!token || token === 'demo_token') {
-                console.log('Demo Mode: Simulating quiz creation success', quizData);
-                setTimeout(() => {
-                    setLoading(false);
-                    alert('Success! (Demo Mode: Quiz simulated as saved)');
-                    navigate('/dashboard');
-                }, 1000);
-                return;
-            }
-
+            // REAL API CALL (Removed demo_token bypass)
             await api.post('/api/quizzes', quizData);
             navigate('/dashboard');
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to create quiz. Try demo mode or check your backend connection.');
+            let errorMsg = 'Failed to create quiz. Please check all fields.';
+            if (err.response?.data?.error) {
+                errorMsg = err.response.data.error;
+            } else if (err.response?.data?.errors?.[0]) {
+                const firstErr = err.response.data.errors[0];
+                errorMsg = typeof firstErr === 'object' ? Object.values(firstErr)[0] : firstErr;
+            } else if (!err.response) {
+                errorMsg = 'Network Error: Cannot reach server.';
+            }
+            alert(errorMsg);
         } finally {
             if (localStorage.getItem('token') !== 'demo_token') {
                 setLoading(false);
@@ -148,10 +155,10 @@ const CreateQuiz = () => {
                                         onChange={handleQuizChange}
                                         className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-blue-500 outline-none appearance-none"
                                     >
-                                        <option value="Technology" className="bg-slate-800">Technology</option>
-                                        <option value="Science" className="bg-slate-800">Science</option>
-                                        <option value="History" className="bg-slate-800">History</option>
-                                        <option value="General" className="bg-slate-800">General</option>
+                                        <option value="technology" className="bg-slate-800">Technology</option>
+                                        <option value="science" className="bg-slate-800">Science</option>
+                                        <option value="history" className="bg-slate-800">History</option>
+                                        <option value="general" className="bg-slate-800">General</option>
                                     </select>
                                 </div>
                                 <div>
@@ -194,7 +201,7 @@ const CreateQuiz = () => {
                                 <button
                                     onClick={() => setStep(2)}
                                     className="btn-primary flex items-center gap-2"
-                                    disabled={!quizData.title}
+                                    disabled={!quizData.title || !quizData.description}
                                 >
                                     Next: Add Questions
                                     <ChevronRight size={18} />

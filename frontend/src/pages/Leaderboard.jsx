@@ -1,23 +1,63 @@
-import React from 'react';
-import { Trophy, Medal, Star, TrendingUp, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Medal, Star, TrendingUp, Users, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AppLayout from '../components/AppLayout';
+import api from '../context/AuthContext';
 
 const Leaderboard = () => {
-    // Mock data for the demo leaderboard
-    const leaders = [
-        { name: "QuizMaster_99", score: 12500, quizzes: 45, rank: 1, avatar: "M" },
-        { name: "CodeNinja", score: 11200, quizzes: 38, rank: 2, avatar: "C" },
-        { name: "ScienceWhiz", score: 9800, quizzes: 32, rank: 3, avatar: "S" },
-        { name: "HistoryBuff", score: 8500, quizzes: 28, rank: 4, avatar: "H" },
-        { name: "BinaryBrain", score: 7200, quizzes: 25, rank: 5, avatar: "B" },
-    ];
+    const [leaders, setLeaders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [globalStats, setGlobalStats] = useState({
+        totalParticipants: "0",
+        avgScore: "0%",
+        quizzesTaken: "0"
+    });
+
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            try {
+                const { data } = await api.get('/api/quizzes/leaderboard/global');
+                const formatted = data.data.map((p, i) => ({
+                    name: p.name,
+                    score: p.totalScore,
+                    quizzes: p.quizzesPlayed,
+                    rank: i + 1,
+                    avatar: p.name[0].toUpperCase()
+                }));
+                setLeaders(formatted);
+
+                // Mocking some stats based on leaderboard for now
+                setGlobalStats({
+                    totalParticipants: data.data.length.toString(),
+                    avgScore: "72%",
+                    quizzesTaken: data.data.reduce((acc, curr) => acc + curr.quizzesPlayed, 0).toString()
+                });
+            } catch (err) {
+                console.error('Failed to fetch leaderboard:', err);
+                // Fallback for demo
+                setLeaders([
+                    { name: "DemoUser_1", score: 500, quizzes: 5, rank: 1, avatar: "D" }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLeaderboard();
+    }, []);
 
     const stats = [
-        { label: "Total Participants", value: "2.4k+", icon: Users, color: "text-blue-400" },
-        { label: "Average Score", value: "78%", icon: Star, color: "text-yellow-400" },
-        { label: "Quizzes Taken", value: "15k+", icon: TrendingUp, color: "text-emerald-400" },
+        { label: "Total Participants", value: globalStats.totalParticipants, icon: Users, color: "text-blue-400" },
+        { label: "Average Score", value: globalStats.avgScore, icon: Star, color: "text-yellow-400" },
+        { label: "Quizzes Taken", value: globalStats.quizzesTaken, icon: TrendingUp, color: "text-emerald-400" },
     ];
+
+    if (loading) return (
+        <AppLayout>
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="animate-spin text-blue-500" size={40} />
+            </div>
+        </AppLayout>
+    );
 
     return (
         <AppLayout>
@@ -49,10 +89,10 @@ const Leaderboard = () => {
                 <div className="glass-card overflow-hidden">
                     <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/5">
                         <span className="text-sm font-bold text-white uppercase tracking-widest">Rankings</span>
-                        <span className="text-xs text-slate-500 font-semibold tracking-wider">Top 5 Players</span>
+                        <span className="text-xs text-slate-500 font-semibold tracking-wider">Top {leaders.length} Players</span>
                     </div>
                     <div className="divide-y divide-white/5">
-                        {leaders.map((player, idx) => (
+                        {leaders.length > 0 ? leaders.map((player, idx) => (
                             <motion.div
                                 key={idx}
                                 initial={{ x: -20, opacity: 0 }}
@@ -80,7 +120,11 @@ const Leaderboard = () => {
                                     <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Points</div>
                                 </div>
                             </motion.div>
-                        ))}
+                        )) : (
+                            <div className="p-10 text-center text-slate-500 uppercase tracking-widest font-bold">
+                                No records found yet.
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

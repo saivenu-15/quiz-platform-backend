@@ -36,11 +36,32 @@ const QuizSchema = new mongoose.Schema({
         type: String,
         enum: ['easy', 'medium', 'hard'],
         default: 'medium'
+    },
+    joinCode: {
+        type: String,
+        unique: true,
+        uppercase: true,
+        trim: true
     }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
+});
+
+// Generate a random 6-digit Join Code before saving
+QuizSchema.pre('save', async function (next) {
+    if (!this.joinCode) {
+        let code;
+        let isUnique = false;
+        while (!isUnique) {
+            code = Math.floor(100000 + Math.random() * 900000).toString();
+            const existing = await this.constructor.findOne({ joinCode: code });
+            if (!existing) isUnique = true;
+        }
+        this.joinCode = code;
+    }
+    next();
 });
 
 // Index for faster queries

@@ -11,6 +11,7 @@ const socketManager = require('./utils/socketManager');
 // Import routes
 const authRoutes = require('./routes/auth');
 const quizRoutes = require('./routes/quiz');
+const aiRoutes = require('./routes/ai');
 
 // Initialize express app
 const app = express();
@@ -52,6 +53,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 handler
 app.use((req, res) => {

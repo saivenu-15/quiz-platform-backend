@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Plus, Trash2, ChevronRight, ChevronLeft, Layout, HelpCircle } from 'lucide-react';
+import { Save, Plus, Trash2, ChevronRight, ChevronLeft, Layout, HelpCircle, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import api from '../context/AuthContext';
@@ -18,6 +18,32 @@ const CreateQuiz = () => {
         isPublic: true,
         questions: []
     });
+
+    const [aiTopic, setAiTopic] = useState('');
+    const [generatingAI, setGeneratingAI] = useState(false);
+
+    const handleGenerateAI = async () => {
+        if (!aiTopic) return;
+        setGeneratingAI(true);
+        try {
+            const { data } = await api.post('/api/ai/generate', {
+                topic: aiTopic,
+                difficulty: quizData.difficulty,
+                count: 5
+            });
+
+            setQuizData(prev => ({
+                ...prev,
+                questions: [...prev.questions, ...data.data]
+            }));
+            setAiTopic('');
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.error || "AI generation failed. Please ensure your API key is correct.");
+        } finally {
+            setGeneratingAI(false);
+        }
+    };
 
     const [currentQuestion, setCurrentQuestion] = useState({
         questionText: '',
@@ -216,6 +242,38 @@ const CreateQuiz = () => {
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-6"
                         >
+                            {/* AI Generation Section */}
+                            <div className="glass-card p-6 border-dashed border-2 border-blue-500/30 bg-blue-500/5">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                            <Sparkles size={24} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">AI Question Generator</h3>
+                                            <p className="text-sm text-slate-400">Auto-create questions from any topic.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 w-full max-w-md flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Topic (e.g. JavaScript, Space...)"
+                                            value={aiTopic}
+                                            onChange={(e) => setAiTopic(e.target.value)}
+                                            className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500"
+                                        />
+                                        <button
+                                            onClick={handleGenerateAI}
+                                            disabled={generatingAI || !aiTopic}
+                                            className="btn-primary py-2 px-6 text-sm flex items-center gap-2 whitespace-nowrap"
+                                        >
+                                            {generatingAI ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                            Generate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Question Form */}
                             <div className="glass-card p-8 border-l-4 border-l-blue-500">
                                 <div className="mb-6">

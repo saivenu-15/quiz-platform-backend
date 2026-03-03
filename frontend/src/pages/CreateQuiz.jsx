@@ -127,7 +127,14 @@ const CreateQuiz = () => {
         <AppLayout>
             <div className="max-w-4xl mx-auto p-8">
                 <div className="mb-10">
-                    <h1 className="text-3xl font-display font-bold text-white">Create New Quiz</h1>
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-3xl font-display font-bold text-white">Create New Quiz</h1>
+                        {quizData.questions.length > 0 && (
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold animate-pulse">
+                                {quizData.questions.length} Questions Added
+                            </div>
+                        )}
+                    </div>
                     <div className="flex items-center gap-4 mt-4">
                         <div className={`flex items-center gap-2 text-sm font-semibold ${step === 1 ? 'text-blue-400' : 'text-slate-500'}`}>
                             <span className={`w-6 h-6 rounded-full border flex items-center justify-center ${step === 1 ? 'border-blue-400' : 'border-slate-700'}`}>1</span>
@@ -184,6 +191,11 @@ const CreateQuiz = () => {
                                         <option value="technology" className="bg-slate-800">Technology</option>
                                         <option value="science" className="bg-slate-800">Science</option>
                                         <option value="history" className="bg-slate-800">History</option>
+                                        <option value="sports" className="bg-slate-800">Sports</option>
+                                        <option value="geography" className="bg-slate-800">Geography</option>
+                                        <option value="entertainment" className="bg-slate-800">Entertainment</option>
+                                        <option value="music" className="bg-slate-800">Music</option>
+                                        <option value="cinema" className="bg-slate-800">Cinema</option>
                                         <option value="general" className="bg-slate-800">General</option>
                                     </select>
                                 </div>

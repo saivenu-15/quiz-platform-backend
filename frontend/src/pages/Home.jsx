@@ -101,9 +101,9 @@ const Home = () => {
                                 <button
                                     onClick={handleJoinByCode}
                                     disabled={loadingCode || joinCode.length !== 6}
-                                    className="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2"
+                                    className="absolute right-1.5 top-1.5 bottom-1.5 px-6 bg-blue-600 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-all duration-300 shadow-lg shadow-blue-500/20 active:scale-95"
                                 >
-                                    {loadingCode ? '...' : 'Join'}
+                                    {loadingCode ? '...' : 'Join Game'}
                                 </button>
                                 {error && <p className="absolute -bottom-6 left-0 text-xs text-red-500">{error}</p>}
                             </div>

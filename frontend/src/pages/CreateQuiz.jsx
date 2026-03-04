@@ -20,6 +20,8 @@ const CreateQuiz = () => {
     });
 
     const [aiTopic, setAiTopic] = useState('');
+    const [aiCount, setAiCount] = useState(5);
+    const [aiDifficulty, setAiDifficulty] = useState('medium');
     const [generatingAI, setGeneratingAI] = useState(false);
 
     const handleGenerateAI = async () => {
@@ -28,8 +30,8 @@ const CreateQuiz = () => {
         try {
             const { data } = await api.post('/api/ai/generate', {
                 topic: aiTopic,
-                difficulty: quizData.difficulty,
-                count: 5
+                difficulty: aiDifficulty,
+                count: aiCount
             });
 
             setQuizData(prev => ({
@@ -266,22 +268,42 @@ const CreateQuiz = () => {
                                             <p className="text-sm text-slate-400">Auto-create questions from any topic.</p>
                                         </div>
                                     </div>
-                                    <div className="flex-1 w-full max-w-md flex gap-2">
+                                    <div className="flex-1 w-full max-w-2xl flex flex-col md:flex-row gap-3">
                                         <input
                                             type="text"
                                             placeholder="Topic (e.g. JavaScript, Space...)"
                                             value={aiTopic}
                                             onChange={(e) => setAiTopic(e.target.value)}
-                                            className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500"
+                                            className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-blue-500 min-w-[200px]"
                                         />
-                                        <button
-                                            onClick={handleGenerateAI}
-                                            disabled={generatingAI || !aiTopic}
-                                            className="btn-primary py-2 px-6 text-sm flex items-center gap-2 whitespace-nowrap"
-                                        >
-                                            {generatingAI ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                                            Generate
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={aiCount}
+                                                onChange={(e) => setAiCount(Number(e.target.value))}
+                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                            >
+                                                <option value={5} className="bg-slate-800">5 Qs</option>
+                                                <option value={10} className="bg-slate-800">10 Qs</option>
+                                                <option value={15} className="bg-slate-800">15 Qs</option>
+                                            </select>
+                                            <select
+                                                value={aiDifficulty}
+                                                onChange={(e) => setAiDifficulty(e.target.value)}
+                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                            >
+                                                <option value="easy" className="bg-slate-800">Easy</option>
+                                                <option value="medium" className="bg-slate-800">Medium</option>
+                                                <option value="hard" className="bg-slate-800">Hard</option>
+                                            </select>
+                                            <button
+                                                onClick={handleGenerateAI}
+                                                disabled={generatingAI || !aiTopic}
+                                                className="btn-primary py-2 px-6 text-sm flex items-center gap-2 whitespace-nowrap"
+                                            >
+                                                {generatingAI ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                                Generate
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

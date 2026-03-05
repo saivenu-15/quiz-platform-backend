@@ -264,7 +264,17 @@ const CreateQuiz = () => {
                                             <Sparkles size={24} />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-white">AI Question Generator</h3>
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-lg font-bold text-white">AI Question Generator</h3>
+                                                {quizData.questions.length > 0 && (
+                                                    <button
+                                                        onClick={() => setQuizData(prev => ({ ...prev, questions: [] }))}
+                                                        className="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-widest bg-red-400/10 px-2 py-0.5 rounded border border-red-400/20 transition-all"
+                                                    >
+                                                        Clear All
+                                                    </button>
+                                                )}
+                                            </div>
                                             <p className="text-sm text-slate-400">Auto-create questions from any topic.</p>
                                         </div>
                                     </div>
@@ -280,7 +290,7 @@ const CreateQuiz = () => {
                                             <select
                                                 value={aiCount}
                                                 onChange={(e) => setAiCount(Number(e.target.value))}
-                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500 appearance-none cursor-pointer"
                                             >
                                                 <option value={5} className="bg-slate-800">5 Qs</option>
                                                 <option value={10} className="bg-slate-800">10 Qs</option>
@@ -289,7 +299,7 @@ const CreateQuiz = () => {
                                             <select
                                                 value={aiDifficulty}
                                                 onChange={(e) => setAiDifficulty(e.target.value)}
-                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                                className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500 appearance-none cursor-pointer"
                                             >
                                                 <option value="easy" className="bg-slate-800">Easy</option>
                                                 <option value="medium" className="bg-slate-800">Medium</option>
@@ -298,10 +308,19 @@ const CreateQuiz = () => {
                                             <button
                                                 onClick={handleGenerateAI}
                                                 disabled={generatingAI || !aiTopic}
-                                                className="btn-primary py-2 px-6 text-sm flex items-center gap-2 whitespace-nowrap"
+                                                className="btn-primary py-2 px-6 text-sm flex items-center gap-2 whitespace-nowrap min-w-[130px] justify-center"
                                             >
-                                                {generatingAI ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                                                Generate
+                                                {generatingAI ? (
+                                                    <>
+                                                        <Loader2 size={16} className="animate-spin" />
+                                                        Thinking...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles size={16} />
+                                                        Generate
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     </div>
